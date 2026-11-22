@@ -146,3 +146,7 @@ A maintainer decides when to publish a new version to Neander’s library.
 
 [MIT](LICENSE). Third-party components retain their respective licenses and
 existing attribution notices.
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for private vulnerability reporting and the automated security checks.
