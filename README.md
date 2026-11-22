@@ -37,7 +37,7 @@ checkout; web projects use Neander’s managed project source.
 
 Stack: Next.js, React, TypeScript, PostgreSQL and Drizzle; database-backed email/password sessions.
 
-Use **Node 24.22.0** and **pnpm 11.18.0**. Versions are listed in
+Use **Node 24.22.3** and **pnpm 11.18.0**. Versions are listed in
 `mise.toml`; if you use mise, run `mise install`. Install Docker for the local
 PostgreSQL service. Python 3.12 with PyYAML is needed for this repository’s Python checks.
 
@@ -146,3 +146,7 @@ A maintainer decides when to publish a new version to Neander’s library.
 
 [MIT](LICENSE). Third-party components retain their respective licenses and
 existing attribution notices.
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for private vulnerability reporting and the automated security checks.
