@@ -14,7 +14,10 @@
     "seed": "node --env-file-if-exists=.env.local --import tsx scripts/seed.ts",
     "template:seed": "node scripts/initialize-template.mjs",
     "test": "python3 scripts/test_deployment_contract.py",
-    "test:template": "tsx scripts/verify-template.ts"
+    "test:template": "tsx scripts/verify-template.ts",
+    "test:policy": "python3 scripts/check_repository.py",
+    "verify": "pnpm run check && pnpm run test && pnpm run test:policy && pnpm run build",
+    "test:production": "tsx scripts/verify-template.ts"
   },
   "dependencies": {
     "@next/env": "16.4.6",
