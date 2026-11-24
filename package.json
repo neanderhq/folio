@@ -17,7 +17,8 @@
     "test:template": "tsx scripts/verify-template.ts",
     "test:policy": "python3 scripts/check_repository.py",
     "verify": "pnpm run check && pnpm run test && pnpm run test:policy && pnpm run build",
-    "test:production": "tsx scripts/verify-template.ts"
+    "test:production": "tsx scripts/verify-template.ts",
+    "test:ui": "tsx scripts/check-record-editor-ui.ts"
   },
   "dependencies": {
     "@next/env": "16.4.6",
@@ -33,6 +34,7 @@
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.7",
     "drizzle-kit": "0.31.10",
+    "playwright": "1.61.1",
     "tsx": "4.20.6",
     "typescript": "7.0.2"
   },
