@@ -158,3 +158,7 @@ Use the pinned tools in `mise.toml`. Run `pnpm verify` for source validation;
 see [development setup](docs/development.md) and [verification coverage](docs/testing.md)
 for production-image tests and CI. Work through a feature branch and PR; preserve
 the existing application, deployment recipe, fictional seeds and MIT license.
+
+## Selective private email
+
+[Private Gmail capture](docs/email-capture.md) adds explicit label selection/opt-in, manual paginated sync and private plain-text record context. It requires deployment-owned Google OAuth and encryption configuration; absent configuration remains visibly unconfigured. Controlled-provider tests are separate from live Gmail verification. No background sync, attachments, HTML rendering, contact creation or sending is included.

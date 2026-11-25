@@ -62,12 +62,14 @@ async function main() {
         env: { ...process.env, NEANDER_TEMPLATE_UI_ORIGIN: origin.origin },
       });
     }
+    if (process.env.NEANDER_TEMPLATE_BROWSER_TESTS === '1') execFileSync('node', ['--import', 'tsx', 'scripts/check-selected-features-ui.ts'], {stdio:'inherit',timeout:180_000,env:{...process.env,NEANDER_TEMPLATE_UI_ORIGIN:origin.origin}});
     await request('/api/crm', undefined, undefined, 'GET', 401);
     // Existing/ordinary workspaces are unaffected; disabling initialization survives retries.
     await client.query("UPDATE crm_template_settings SET enabled=false WHERE id='attio-starter-v1'");
     execFileSync('node', ['--import', 'tsx', 'scripts/check-crm-api.ts'], { stdio: 'inherit', timeout: 120_000 });
     execFileSync('node', ['--import', 'tsx', 'scripts/check-followups.ts'], { stdio: 'inherit', timeout: 120_000 });
     execFileSync('node', ['--import', 'tsx', 'scripts/check-business-views.ts'], { stdio: 'inherit', timeout: 120_000 });
+    execFileSync('node', ['--import', 'tsx', 'scripts/check-mail.ts'], { stdio: 'inherit', timeout: 120_000 });
     const existing = await register('existing');
     execFileSync('node', ['scripts/initialize-template.mjs'], { stdio: 'inherit' });
     assert.equal((await client.query("SELECT enabled FROM crm_template_settings WHERE id='attio-starter-v1'")).rows[0].enabled, false);

@@ -166,3 +166,17 @@ export const followupExecutions = pgTable('crm_followup_executions', {
   snapshot: jsonb('snapshot').$type<{ name: string; title: string; assigneeId: string; dueDate: string; timeZone: string }>().notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, t => [uniqueIndex('crm_followup_event_unique').on(t.ruleId, t.stageEventId), index('crm_followup_history_idx').on(t.workspaceId, t.id)]);
+
+// Personal mail is deliberately separate from shared CRM records.
+export const mailConnections = pgTable('crm_mail_connections', {
+ id: uuid('id').defaultRandom().primaryKey(), workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id), userId: uuid('user_id').notNull().references(() => users.id),
+ mailbox: varchar('mailbox', {length:254}).notNull(), tokens: text('tokens').notNull(), labels: jsonb('labels').$type<{id:string;name:string}[]>().notNull().default([]),
+ labelId: text('label_id'), labelName: text('label_name'), enabled: boolean('enabled').notNull().default(false), version: integer('version').notNull().default(1),
+ status: varchar('status',{length:30}).notNull().default('disabled'), error: text('error'), generation: uuid('generation'), cursor: text('cursor'), scanned: integer('scanned').notNull().default(0), imported: integer('imported').notNull().default(0), skipped: integer('skipped').notNull().default(0), lastCompletedAt: timestamp('last_completed_at',{withTimezone:true}),
+}, t => [uniqueIndex('crm_mail_personal_unique').on(t.workspaceId,t.userId)]);
+export const mailMessages = pgTable('crm_mail_messages', {
+ id: uuid('id').defaultRandom().primaryKey(), connectionId: uuid('connection_id').notNull().references(()=>mailConnections.id,{onDelete:'cascade'}), providerId: text('provider_id').notNull(), payload: text('payload').notNull(), seenGeneration: uuid('seen_generation').notNull(),
+}, t=>[uniqueIndex('crm_mail_message_unique').on(t.connectionId,t.providerId)]);
+export const mailStates = pgTable('crm_mail_states', {
+ hash: varchar('hash',{length:64}).primaryKey(), workspaceId: uuid('workspace_id').notNull().references(()=>workspaces.id), userId: uuid('user_id').notNull().references(()=>users.id), sessionHash: varchar('session_hash',{length:64}).notNull(), verifier: text('verifier').notNull(), expiresAt: timestamp('expires_at',{withTimezone:true}).notNull(), claimed: boolean('claimed').notNull().default(false),
+},t=>[index('crm_mail_states_owner_idx').on(t.workspaceId,t.userId)]);

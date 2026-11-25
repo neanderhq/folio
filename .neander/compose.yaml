@@ -21,6 +21,26 @@ x-neander:
       required: true
       source: provisioned
       provider: Neon
+    - service: web
+      name: FOLIO_GOOGLE_CLIENT_ID
+      required: false
+      source: user
+      provider: null
+    - service: web
+      name: FOLIO_GOOGLE_CLIENT_SECRET
+      required: false
+      source: user
+      provider: null
+    - service: web
+      name: FOLIO_GOOGLE_REDIRECT_URI
+      required: false
+      source: user
+      provider: null
+    - service: web
+      name: FOLIO_MAIL_ENCRYPTION_KEY
+      required: false
+      source: user
+      provider: null
   probes:
     - path: /api/health
       success_status_range: 2xx
