@@ -106,6 +106,9 @@ export async function POST(request: Request) { try {
     if (!uuid(b.viewId)) throw new AccessError('View not found.', 404);
     const view = await db.transaction(async tx => {
       await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${access.workspaceId}), 73921)`);
+      const [acting] = await tx.select().from(memberships).where(and(eq(memberships.workspaceId, access.workspaceId), eq(memberships.userId, access.user.id))).for('share');
+      const [currentGrant] = await tx.select().from(crmListGrants).where(and(eq(crmListGrants.listId, context.list.id), eq(crmListGrants.userId, access.user.id))).for('share');
+      if (!acting || acting.role === 'Viewer' || (!context.creator && context.list.visibility !== 'shared' && currentGrant?.access !== 'Editor')) throw new AccessError('You cannot change this list.', 403);
       const [current] = await tx.select().from(crmListViews).where(and(eq(crmListViews.id, b.viewId as string), eq(crmListViews.listId, context.list.id))).for('update').limit(1);
       if (!current) throw new AccessError('View not found.', 404);
       if (b.version !== undefined && b.version !== current.version) throw new AccessError('This shared view changed. Your draft is retained; reload the saved view before retrying.', 409);

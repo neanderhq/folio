@@ -14,7 +14,7 @@ export function ruleInput(b: Record<string, unknown>) {
   if (!STAGES.includes(b.stage as typeof STAGES[number])) throw new AccessError('Choose a pipeline stage.', 400);
   if (!Number.isInteger(b.offsetDays) || Number(b.offsetDays) < 0 || Number(b.offsetDays) > 365) throw new AccessError('Due offset must be 0–365 whole calendar days.', 400);
   if (typeof b.enabled !== 'boolean') throw new AccessError('Choose enabled or disabled.', 400);
-  if (typeof b.assigneeId !== 'string' || !/^[0-9a-f-]{36}$/i.test(b.assigneeId)) throw new AccessError('Choose a workspace member.', 400);
+  if (typeof b.assigneeId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(b.assigneeId)) throw new AccessError('Choose a workspace member.', 400);
   try { new Intl.DateTimeFormat('en', { timeZone }).format(); } catch { throw new AccessError('Choose a valid IANA timezone.', 400); }
   return { name, title, timeZone, stage: b.stage as string, offsetDays: b.offsetDays as number, enabled: b.enabled, assigneeId: b.assigneeId };
 }

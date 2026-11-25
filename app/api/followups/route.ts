@@ -16,18 +16,25 @@ export async function GET(request: Request) { try {
   return NextResponse.json({ rules, history: history.map(h => ({ ...h, dealName: h.deletedAt ? 'Deal in Trash' : h.dealName, dealId: h.deletedAt ? null : h.dealId })), members, canManage: role === 'Admin' });
 } catch (e) { return fail(e); } }
 export async function POST(request: Request) { try {
-  sameOrigin(request); const { workspaceId, role } = await workspaceAccess(request, true);
+  sameOrigin(request); const { workspaceId, role, user } = await workspaceAccess(request, true);
   if (role !== 'Admin') throw new AccessError('Only Admins manage follow-up rules.', 403);
   const raw = await request.text(); if (raw.length > 4096) throw new AccessError('Rule is too large.', 413);
   let b: Record<string, unknown>; try { b = JSON.parse(raw); } catch { throw new AccessError('Provide a valid rule.', 400); }
   if (!b || typeof b !== 'object') throw new AccessError('Provide a valid rule.', 400);
   const input = ruleInput(b), db = getDb();
   const rule = await db.transaction(async tx => {
-    await tx.execute(followupLock(workspaceId)); if (input.enabled) await writableAssignee(tx, workspaceId, input.assigneeId);
+    await tx.execute(followupLock(workspaceId));
+    const [acting] = await tx.select().from(memberships).where(and(eq(memberships.workspaceId, workspaceId), eq(memberships.userId, user.id))).for('share');
+    if (acting?.role !== 'Admin') throw new AccessError('Only current Admins manage follow-up rules.', 403);
+    if (input.enabled) await writableAssignee(tx, workspaceId, input.assigneeId);
     if (b.id) {
-      if (typeof b.id !== 'string' || !/^[0-9a-f-]{36}$/i.test(b.id)) throw new AccessError('Rule not found.', 404);
+      if (typeof b.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(b.id)) throw new AccessError('Rule not found.', 404);
       const [current] = await tx.select().from(followupRules).where(and(eq(followupRules.id, b.id), eq(followupRules.workspaceId, workspaceId))).limit(1);
       if (!current) throw new AccessError('Rule not found.', 404);
+      if (input.assigneeId !== current.assigneeId) {
+        const [member] = await tx.select().from(memberships).where(and(eq(memberships.workspaceId, workspaceId), eq(memberships.userId, input.assigneeId))).limit(1);
+        if (!member) throw new AccessError('Choose a member of this workspace.', 400);
+      }
       if (b.version !== current.version) throw new AccessError('This rule changed. Your draft is retained; reload the saved rule before retrying.', 409);
       return (await tx.update(followupRules).set({ ...input, version: current.version + 1, updatedAt: new Date() }).where(eq(followupRules.id, current.id)).returning())[0];
     }
