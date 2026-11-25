@@ -26,6 +26,8 @@ record editor regression against the same built container: repeated refresh keep
 set of controls, opening an editor uses current values, cancelled drafts stay
 cancelled, stale saves preserve the draft and expose latest saved values for an
 explicit retry, and keyboard tabs/stage changes and phone validation persist.
+It also checks long account identities inside the sidebar at 1440px and 1024px,
+and forward/reverse Tab containment in workspace search and nested record editors.
 The browser uses a fresh profile and fictional records in the explicit disposable
 database; it never uses an authenticated personal browser profile.
 

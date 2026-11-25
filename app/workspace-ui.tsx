@@ -23,7 +23,16 @@ export function Dialog({open,onClose,title,children,wide=false}:{open:boolean;on
   if(open&&!node.open){returnFocus.current=document.activeElement instanceof HTMLElement?document.activeElement:null;node.showModal()}
   if(!open&&node.open){node.close();if(returnFocus.current?.isConnected)returnFocus.current.focus();returnFocus.current=null}
  },[open]);
- return <dialog ref={dialog} className={`at-block-modal at-block-modal--${wide?'wide':'default'}`} aria-labelledby={titleId} aria-modal="true" onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();onClose()}}} onCancel={event=>{event.preventDefault();event.stopPropagation();if(event.target===event.currentTarget)onClose()}} onPointerDown={event=>{if(event.target!==event.currentTarget)return;const bounds=event.currentTarget.getBoundingClientRect();if(event.clientX<bounds.left||event.clientX>bounds.right||event.clientY<bounds.top||event.clientY>bounds.bottom)onClose()}}><div className="at-block-modal__head"><h2 id={titleId}>{title}</h2><AttioButton variant="ghost" leadingIcon="close" aria-label="Close dialog" onClick={onClose}/></div><div className="at-block-modal__body">{children}</div></dialog>;
+ return <dialog ref={dialog} className={`at-block-modal at-block-modal--${wide?'wide':'default'}`} aria-labelledby={titleId} aria-modal="true" onKeyDown={event=>{
+  const node=event.currentTarget;
+  if(event.target instanceof Element&&event.target.closest('dialog')!==node)return;
+  if(event.key==='Escape'){event.preventDefault();event.stopPropagation();onClose();return}
+  if(event.key!=='Tab'||event.defaultPrevented)return;
+  const controls=Array.from(node.querySelectorAll<HTMLElement>('a[href],button,input,select,textarea,[tabindex]')).filter(control=>control.tabIndex>=0&&!control.matches(':disabled')&&control.getClientRects().length>0&&getComputedStyle(control).visibility!=='hidden'&&control.closest('dialog')===node);
+  const first=controls[0],last=controls.at(-1);
+  const destination=event.shiftKey&&document.activeElement===first?last:!event.shiftKey&&document.activeElement===last?first:null;
+  if(destination){event.preventDefault();event.stopPropagation();destination.focus()}
+ }} onCancel={event=>{event.preventDefault();event.stopPropagation();if(event.target===event.currentTarget)onClose()}} onPointerDown={event=>{if(event.target!==event.currentTarget)return;const bounds=event.currentTarget.getBoundingClientRect();if(event.clientX<bounds.left||event.clientX>bounds.right||event.clientY<bounds.top||event.clientY>bounds.bottom)onClose()}}><div className="at-block-modal__head"><h2 id={titleId}>{title}</h2><AttioButton variant="ghost" leadingIcon="close" aria-label="Close dialog" onClick={onClose}/></div><div className="at-block-modal__body">{children}</div></dialog>;
 }
 
 export function WorkspaceShell({section,workspace,email,role,unreadCount,navigate,onSettings,onNewList,searchRecords,onOpen,children}:{section:Section;workspace:string;email:string;role:string;unreadCount:number;navigate:(section:Section)=>void;onSettings:()=>void;onNewList:()=>void;searchRecords:SearchRecord[];onOpen:(type:RecordType,id:number)=>void;children:ReactNode}){
