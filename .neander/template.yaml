@@ -1,12 +1,25 @@
 contract_version: 1
 id: attio
 title: Folio
-description: A CRM with companies, contacts, deal pipelines, notes and tasks. Create an account to explore a private workspace populated with fictional examples.
+description: |
+  Keep relationships and next steps together in a private CRM workspace.
+  Track companies, people and deals, create automatic stage-entry follow-up
+  tasks, and save typed business/custom-field views. Optionally configure
+  Google OAuth for private, explicitly opted-in Gmail label capture with
+  manual sync. Start with fictional examples after creating an account.
 category: Sales & CRM
 best_for: Sales teams, agencies and small businesses
-features: [Companies and contacts, Deal pipelines, Notes and tasks, Workspace access]
-included: [CRM application, PostgreSQL migrations, Fictional starter data]
+features: [Companies and people, Deal pipelines and history, Automatic follow-up tasks, Typed saved views, Private Gmail label capture, Notes tasks and reports]
+included: [CRM application, PostgreSQL migrations, Fictional starter data, Role-aware task rules, Typed list views, Configurable private Gmail capture]
 thumbnail: .neander/thumbnail.png
+screenshots:
+  - .neander/screenshots/followups.png
+  - .neander/screenshots/business-views.png
+  - .neander/screenshots/private-email.png
+  - .neander/screenshots/private-email-record.png
+  - .neander/screenshots/mobile-followups.png
+  - .neander/screenshots/mobile-business-views.png
+  - .neander/screenshots/mobile-email.png
 commands:
   install: [pnpm, install, --frozen-lockfile]
   check: [pnpm, run, check]

@@ -1,0 +1,1 @@
+ALTER TABLE "crm_list_views" ADD COLUMN "version" integer DEFAULT 1 NOT NULL;

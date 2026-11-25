@@ -1,3 +1,4 @@
+import type { ListViewConfig } from '../shared/lists';
 import { pgTable, serial, varchar, text, integer, timestamp, date, boolean, index, uuid, primaryKey, jsonb, uniqueIndex } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('crm_users', { id: uuid('id').defaultRandom().primaryKey(), email: varchar('email', { length: 254 }).notNull().unique(), passwordHash: text('password_hash').notNull(), createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull() });
@@ -134,7 +135,8 @@ export const crmListViews = pgTable('crm_list_views', {
   listId: uuid('list_id').notNull().references(() => crmLists.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 80 }).notNull(),
   kind: varchar('kind', { length: 10 }).notNull(),
-  config: jsonb('config').$type<{ filterStage: string; sort: string; columns: string[] }>().notNull(),
+  config: jsonb('config').$type<ListViewConfig>().notNull(),
+  version: integer('version').notNull().default(1),
 }, t => [uniqueIndex('crm_list_view_name_unique').on(t.listId, t.name)]);
 
 // Installing a template enables fictional data only for newly created workspaces.
@@ -147,3 +149,34 @@ export const workspaceSeeds = pgTable('crm_workspace_seeds', {
   version: varchar('version', { length: 80 }).notNull(),
   appliedAt: timestamp('applied_at', { withTimezone: true }).defaultNow().notNull(),
 }, t => [primaryKey({ columns: [t.workspaceId, t.version] })]);
+
+export const followupRules = pgTable('crm_followup_rules', {
+  id: uuid('id').defaultRandom().primaryKey(), workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id),
+  name: varchar('name', { length: 80 }).notNull(), stage: varchar('stage', { length: 20 }).notNull(),
+  title: varchar('title', { length: 160 }).notNull(), assigneeId: uuid('assignee_id').notNull().references(() => users.id),
+  offsetDays: integer('offset_days').notNull(), timeZone: varchar('time_zone', { length: 80 }).notNull(),
+  enabled: boolean('enabled').notNull().default(true), version: integer('version').notNull().default(1),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, t => [index('crm_followup_rules_workspace_idx').on(t.workspaceId)]);
+export const followupExecutions = pgTable('crm_followup_executions', {
+  id: serial('id').primaryKey(), workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id),
+  ruleId: uuid('rule_id').notNull().references(() => followupRules.id), ruleVersion: integer('rule_version').notNull(),
+  stageEventId: integer('stage_event_id').notNull().references(() => dealStageEvents.id), dealId: integer('deal_id').notNull().references(() => deals.id),
+  taskId: integer('task_id').references(() => tasks.id, { onDelete: 'set null' }),
+  snapshot: jsonb('snapshot').$type<{ name: string; title: string; assigneeId: string; dueDate: string; timeZone: string }>().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, t => [uniqueIndex('crm_followup_event_unique').on(t.ruleId, t.stageEventId), index('crm_followup_history_idx').on(t.workspaceId, t.id)]);
+
+// Personal mail is deliberately separate from shared CRM records.
+export const mailConnections = pgTable('crm_mail_connections', {
+ id: uuid('id').defaultRandom().primaryKey(), workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id), userId: uuid('user_id').notNull().references(() => users.id),
+ mailbox: varchar('mailbox', {length:254}).notNull(), tokens: text('tokens').notNull(), labels: jsonb('labels').$type<{id:string;name:string}[]>().notNull().default([]),
+ labelId: text('label_id'), labelName: text('label_name'), enabled: boolean('enabled').notNull().default(false), version: integer('version').notNull().default(1),
+ status: varchar('status',{length:30}).notNull().default('disabled'), error: text('error'), generation: uuid('generation'), cursor: text('cursor'), scanned: integer('scanned').notNull().default(0), imported: integer('imported').notNull().default(0), skipped: integer('skipped').notNull().default(0), lastCompletedAt: timestamp('last_completed_at',{withTimezone:true}),
+}, t => [uniqueIndex('crm_mail_personal_unique').on(t.workspaceId,t.userId)]);
+export const mailMessages = pgTable('crm_mail_messages', {
+ id: uuid('id').defaultRandom().primaryKey(), connectionId: uuid('connection_id').notNull().references(()=>mailConnections.id,{onDelete:'cascade'}), providerId: text('provider_id').notNull(), payload: text('payload').notNull(), seenGeneration: uuid('seen_generation').notNull(),
+}, t=>[uniqueIndex('crm_mail_message_unique').on(t.connectionId,t.providerId)]);
+export const mailStates = pgTable('crm_mail_states', {
+ hash: varchar('hash',{length:64}).primaryKey(), workspaceId: uuid('workspace_id').notNull().references(()=>workspaces.id), userId: uuid('user_id').notNull().references(()=>users.id), sessionHash: varchar('session_hash',{length:64}).notNull(), verifier: text('verifier').notNull(), expiresAt: timestamp('expires_at',{withTimezone:true}).notNull(), claimed: boolean('claimed').notNull().default(false),
+},t=>[index('crm_mail_states_owner_idx').on(t.workspaceId,t.userId)]);

@@ -16,8 +16,14 @@ class DeploymentExamplesTests(unittest.TestCase):
         recipe = yaml.safe_load((ROOT / '.neander/compose.yaml').read_text())
         metadata = recipe['x-neander']
         self.assertEqual(metadata['migration'], 'nextjs-drizzle')
-        self.assertEqual(metadata['environment'], [{'service': 'web', 'name': 'DATABASE_URL',
-                                                    'required': True, 'source': 'provisioned', 'provider': 'Neon'}])
+        self.assertEqual(metadata['environment'][0], {'service': 'web', 'name': 'DATABASE_URL',
+                                                    'required': True, 'source': 'provisioned', 'provider': 'Neon'})
+        optional = metadata['environment'][1:]
+        self.assertEqual({item['name'] for item in optional}, {'FOLIO_GOOGLE_CLIENT_ID', 'FOLIO_GOOGLE_CLIENT_SECRET', 'FOLIO_GOOGLE_REDIRECT_URI', 'FOLIO_MAIL_ENCRYPTION_KEY'})
+        for item in optional:
+            self.assertEqual(item['source'], 'user')
+            self.assertIs(item['provider'], None)
+            self.assertIs(item['required'], False)
         self.assertEqual(metadata['ingress']['root_probe'], '/api/health')
         self.assertEqual(metadata['probes'][0]['path'], '/api/health')
         self.assertTrue((ROOT / '.neander/migrate.mjs').is_file())

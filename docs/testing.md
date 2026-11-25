@@ -52,3 +52,15 @@ product acceptance, physical-device/mobile coverage, managed Neon/Cloud Run
 deployment, real email delivery or the desktop Neander Publish path. Keep the
 README's product-specific limitations. Add regression tests for behavior changes;
 do not replace real app checks with boilerplate-only assertions.
+
+## Follow-up rules
+
+`DATABASE_URL=<disposable PostgreSQL URL> pnpm exec tsx scripts/check-followups.ts` exercises persisted rules/tasks/history, role and tenant boundaries, replay/re-entry, notices, timezone dates, conflicts, downgraded assignees, a real PostgreSQL task-insert failure with atomic rollback, correction/retry and disabling. The production verifier invokes it with sample initialization disabled. It installs/removes a uniquely named fault trigger only in the explicitly disposable database.
+
+`DATABASE_URL=<disposable PostgreSQL URL> pnpm exec tsx scripts/check-business-views.ts` verifies typed AND filters, persisted columns/order/membership, zero/false/null, currency/foreign-field/type errors, stale saves, private list grants, archived-field unavailability and explicit correction. Production verification runs this suite with fictional workspaces.
+
+## Private email capture
+
+`DATABASE_URL=<disposable PostgreSQL URL> pnpm exec tsx scripts/check-mail.ts` uses a locally controlled HTTP OAuth/Gmail provider with the production Google OAuth library. It verifies PKCE/code/refresh, session/expiry/replay/denial/mismatch, explicit label opt-in, encrypted private persistence, pagination/rate-limit retry/dedup/reconciliation, identity/tenant/role boundaries and disconnect races/deletion without a key. It supplies fictional configuration only for this process. Production verification invokes it; no live Gmail credentials are required. See [configuration and limits](email-capture.md).
+
+The optional production browser pass also runs `scripts/check-selected-features-ui.ts`: keyboard rule/stage transitions, stale rule/view drafts and recovery, typed AND filters/columns after reload,375px editing and the unconfigured capture boundary. Against an explicitly controlled-provider built app it additionally exercises consent, label selection, separate opt-in, paginated private capture, persistence/record links and deletion. Evidence output shares `NEANDER_TEMPLATE_UI_EVIDENCE`. A configured UI test refuses to use a real provider.

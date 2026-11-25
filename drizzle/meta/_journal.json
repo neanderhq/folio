@@ -85,6 +85,27 @@
       "when": 1794359011646,
       "tag": "0011_template_initialization",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1795602785538,
+      "tag": "0012_followup_rules",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1795603144526,
+      "tag": "0013_business_views",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1795603853379,
+      "tag": "0014_private_mail",
+      "breakpoints": true
     }
   ]
 }

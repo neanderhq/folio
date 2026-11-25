@@ -5,6 +5,7 @@ import { companies, people, deals, dealStageEvents, notes, tasks, recordChanges,
 import { STAGES, CURRENCIES } from '../../../shared/crm';
 import { AccessError, sameOrigin, workspaceAccess } from '../../../server/auth';
 import { CustomFieldError, customLock, saveCustomValues } from '../../../server/custom-fields';
+import { runFollowups } from '../../../server/followups';
 import { activeRecordIds } from '../../../server/record-lifecycle';
 
 export const dynamic = 'force-dynamic';
@@ -182,7 +183,7 @@ export async function PATCH(request: Request) { try {
       track('stage', current.stage, selectedStage); track('owner', current.owner, owner); track('valueCents', current.valueCents, valueCents);
       track('currency', current.currency, selectedCurrency); track('lostReason', current.lostReason, reason);
       saved = Object.keys(changes).length ? (await tx.update(deals).set({ name, companyId, personId, stage: selectedStage, owner, valueCents, currency: selectedCurrency, lostReason: reason, wonClosedAt, version: current.version + 1 }).where(and(eq(deals.id, recordId), eq(deals.workspaceId, workspaceId), eq(deals.version, expectedVersion))).returning())[0] : current;
-      if (current.stage !== selectedStage) await tx.insert(dealStageEvents).values({ workspaceId, dealId: recordId, fromStage: current.stage, toStage: selectedStage, changedAt: now, lostReason: reason });
+      if (current.stage !== selectedStage) { const [event] = await tx.insert(dealStageEvents).values({ workspaceId, dealId: recordId, fromStage: current.stage, toStage: selectedStage, changedAt: now, lostReason: reason }).returning(); await runFollowups(tx, workspaceId, user.id, recordId, selectedStage, event.id, now); }
     } else {
       const [current] = await tx.select().from(notes).where(and(eq(notes.id, recordId), eq(notes.workspaceId, workspaceId))).for('update').limit(1);
       if (!current) throw new InputError('The record was not found.', 404);
