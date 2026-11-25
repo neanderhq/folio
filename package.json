@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@next/env": "16.4.6",
-    "drizzle-orm": "0.45.2",
+    "drizzle-orm": "0.45.4",
     "email-addresses": "5.0.0",
     "google-auth-library": "11.3.4",
     "next": "16.4.6",
