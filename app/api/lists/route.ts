@@ -58,7 +58,7 @@ export async function GET(request: Request) { try {
   const { list, creator, grant } = await allowedList(request, listId);
   const [entries, views, listGrants] = await Promise.all([
     db.select().from(crmListEntries).where(eq(crmListEntries.listId, list.id)).orderBy(crmListEntries.createdAt).limit(501),
-    db.select().from(crmListViews).where(eq(crmListViews.listId, list.id)),
+    db.select().from(crmListViews).where(eq(crmListViews.listId, list.id)).orderBy(sql`case when ${crmListViews.kind} = 'table' then 0 else 1 end`, crmListViews.id),
     creator ? db.select({ userId: crmListGrants.userId, email: users.email, access: crmListGrants.access }).from(crmListGrants).innerJoin(users, eq(users.id, crmListGrants.userId)).where(eq(crmListGrants.listId, list.id)) : Promise.resolve([]),
   ]);
   if (entries.length > 500) throw new AccessError('This list exceeds its 500-entry limit.', 409);
