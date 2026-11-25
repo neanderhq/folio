@@ -41,8 +41,8 @@ p{line-height:1.6}
 .at-nav-row.is-active,.home-nav.is-active{background:#ededf0;color:#28282d;font-weight:500}
 .nav-group-label{display:flex;align-items:center;gap:8px;color:#7b7b82;font-size:12px;padding:24px 10px 8px}
 .new-list{display:flex;align-items:center;justify-content:center;gap:7px;border:1px dashed #dddde2;border-radius:6px;min-height:30px;width:100%;background:#f7f7f8;color:#82828a;margin-top:4px;font-size:13px}
-.sidebarfoot{margin-top:auto;border-top:1px solid var(--border);padding:7px;display:grid;gap:5px;min-width:0}
-.sidebarfoot>button{border:0;background:transparent;width:100%;display:flex;align-items:center;gap:9px;min-height:34px;padding:5px 8px;border-radius:6px;text-align:left;font-size:12px}
+.sidebarfoot{margin-top:auto;border-top:1px solid var(--border);padding:7px;display:grid;grid-template-columns:minmax(0,1fr);gap:5px;min-width:0}
+.sidebarfoot>button{border:0;background:transparent;width:100%;min-width:0;display:flex;align-items:center;gap:9px;min-height:34px;padding:5px 8px;border-radius:6px;text-align:left;font-size:12px}
 .sidebarfoot>button:hover{background:#ededf0}
 .sidebarfoot button:last-child{border-top:1px solid var(--border);border-radius:0;padding-top:11px}
 .sidebarfoot button>span:not(.record-avatar){min-width:0;flex:1}

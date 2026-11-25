@@ -37,6 +37,33 @@ async function main() {
     const company = await request('post', '/api/crm', { type: 'company', name: 'Cedar UI Demo', domain: 'cedar-ui.example' }, 201);
     const person = await request('post', '/api/crm', { type: 'person', name: 'Mira UI Demo', companyId: company.id }, 201);
     const deal = await request('post', '/api/crm', { type: 'deal', name: 'Cedar UI pilot', companyId: company.id, personId: person.id, owner: 'Sam Demo', stage: 'Lead', currency: 'USD', valueCents: 10000 }, 201);
+    await page.goto(new URL(`/?workspace=${workspace}`, origin).href);
+    await page.getByRole('heading', { name: /Good (morning|afternoon|evening)/ }).waitFor();
+    for (const width of [1440, 1024]) {
+      await page.setViewportSize({ width, height: 960 });
+      const accountControl = page.getByRole('complementary').getByRole('button', { name: `Folio ${account.user.email}`, exact: true });
+      assert.equal(await accountControl.evaluate(element => {
+        const sidebar = element.closest('aside');
+        if (!sidebar) return false;
+        const control = element.getBoundingClientRect(), bounds = sidebar.getBoundingClientRect();
+        return control.left >= bounds.left - 1 && control.right <= bounds.right + 1;
+      }), true, `Long account identity overflowed the sidebar at ${width}px.`);
+    }
+    await page.setViewportSize({ width: 1440, height: 960 });
+    await capture('sidebar-account-contained');
+    const searchOpener = page.getByRole('button', { name: 'Search ⌘ K', exact: true });
+    await searchOpener.focus(); await page.keyboard.press('Control+k');
+    const search = page.getByRole('dialog', { name: 'Search workspace', exact: true });
+    await search.getByRole('searchbox', { name: 'Search loaded records', exact: true }).fill('Cedar UI');
+    const searchClose = search.getByRole('button', { name: 'Close dialog', exact: true });
+    const lastResult = search.getByRole('button', { name: 'Cedar UI pilot deal · Cedar UI Demo', exact: true });
+    await lastResult.focus(); await page.keyboard.press('Tab');
+    assert.equal(await searchClose.evaluate(element => element === document.activeElement), true, 'Forward Tab escaped workspace search.');
+    await searchClose.focus(); await page.keyboard.press('Shift+Tab');
+    assert.equal(await lastResult.evaluate(element => element === document.activeElement), true, 'Reverse Tab escaped workspace search.');
+    await capture('keyboard-search-contained');
+    await page.keyboard.press('Escape'); await search.waitFor({ state: 'hidden' });
+    assert.equal(await searchOpener.evaluate(element => element === document.activeElement), true);
     await page.goto(new URL(`/?workspace=${workspace}&recordType=deal&recordId=${deal.id}`, origin).href);
     await page.getByRole('heading', { name: 'Cedar UI pilot', exact: true }).waitFor();
     const pipeline = page.getByRole('combobox', { name: /^Pipeline stage/ });
@@ -51,6 +78,12 @@ async function main() {
     await page.getByRole('button', { name: 'Edit deal', exact: true }).click();
     const editor = page.getByRole('dialog', { name: 'Edit deal', exact: true });
     assert.equal(await editor.getByRole('combobox', { name: /^Stage/ }).inputValue(), 'Proposal', 'Editor must start from the current pipeline stage.');
+    const editorClose = editor.getByRole('button', { name: 'Close dialog', exact: true });
+    const editorSave = editor.getByRole('button', { name: 'Save changes', exact: true });
+    await editorSave.focus(); await page.keyboard.press('Tab');
+    assert.equal(await editorClose.evaluate(element => element === document.activeElement), true, 'Forward Tab escaped the nested editor.');
+    await editorClose.focus(); await page.keyboard.press('Shift+Tab');
+    assert.equal(await editorSave.evaluate(element => element === document.activeElement), true, 'Reverse Tab escaped the nested editor.');
     await editor.getByLabel('Owner', { exact: true }).fill('Sam Revised');
     await editor.getByRole('button', { name: 'Save changes', exact: true }).click();
     await editor.getByRole('status').filter({ hasText: 'Saved.' }).waitFor();
@@ -145,8 +178,8 @@ async function main() {
     assert.equal(savedTask.dueDate, '2026-11-25', 'Editing/completing a task discarded its changed deadline.');
     assert.equal(savedTask.done, true);
     assert.deepEqual(errors, []);
-    if (evidence) writeFileSync(join(evidence, 'record-editor-results.json'), JSON.stringify({ outcome: 'passed', checks: ['unique controls after repeated refresh','current-stage edit without rollback','saved/cancelled draft reopening','stale conflict preserves draft and shows saved values','explicit reviewed retry','keyboard tabs and persisted stage','phone validation correction and focus return','phone task deadline creation/edit/completion/reload'], viewport: { width: 375, height: 812 }, errors }, null, 2));
-    console.log('Rendered record editor passed: refresh uniqueness, current values, cancelled drafts, stale conflict review, keyboard stage/tabs, 375px validation, dated task creation/edit/completion and persistence.');
+    if (evidence) writeFileSync(join(evidence, 'record-editor-results.json'), JSON.stringify({ outcome: 'passed', checks: ['long account identity contained at 1440px and 1024px','workspace search forward/reverse Tab containment and Escape return','nested editor forward/reverse Tab containment','unique controls after repeated refresh','current-stage edit without rollback','saved/cancelled draft reopening','stale conflict preserves draft and shows saved values','explicit reviewed retry','keyboard tabs and persisted stage','phone validation correction and focus return','phone task deadline creation/edit/completion/reload'], viewport: { width: 375, height: 812 }, errors }, null, 2));
+    console.log('Rendered record editor passed: sidebar containment, search/nested modal Tab loops, refresh uniqueness, current values, cancelled drafts, stale conflict review, keyboard stage/tabs, 375px validation, dated task creation/edit/completion and persistence.');
   } catch (error) {
     await capture('failure');
     throw error;
