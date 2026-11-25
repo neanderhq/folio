@@ -18,7 +18,24 @@ TypeScript is the existing static gate; this migration does not introduce a new 
 
 ## Production smoke coverage
 
-Production HTTP/static assets, private signup/workspaces, CRM behavior and isolation, seed retries, preserved edits/deletions and container replacement. This suite is API/HTTP based; it does not certify rendered UI.
+Production HTTP/static assets, private signup/workspaces, CRM behavior and isolation, seed retries, preserved edits/deletions and container replacement.
+
+The optional `NEANDER_TEMPLATE_BROWSER_TESTS=1` pass requires Chromium installed
+with `pnpm exec playwright install --with-deps chromium`. It runs the rendered
+record editor regression against the same built container: repeated refresh keeps one
+set of controls, opening an editor uses current values, cancelled drafts stay
+cancelled, stale saves preserve the draft and expose latest saved values for an
+explicit retry, and keyboard tabs/stage changes and phone validation persist.
+The browser uses a fresh profile and fictional records in the explicit disposable
+database; it never uses an authenticated personal browser profile.
+
+For local production verification, set that flag and run `pnpm test:production`
+with the usual image/database/origin variables below. An installed Chrome can be
+selected with `PLAYWRIGHT_CHANNEL=chrome`. Optional
+`NEANDER_TEMPLATE_UI_EVIDENCE=/absolute/ignored/path` saves fictional screenshots
+and a JSON result. Private template callers without the flag retain the existing
+API/HTTP verification path; this focused browser suite does not claim complete UI
+or reference-product parity.
 
 CI supplies only fictional credentials and an isolated local PostgreSQL service.
 `DATABASE_URL` and `NEANDER_TEMPLATE_TEST_DATABASE_URL` must identify the same

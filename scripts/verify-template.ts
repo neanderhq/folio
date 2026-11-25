@@ -56,6 +56,12 @@ async function main() {
     start(); await ready();
     execFileSync('python3', ['scripts/test_entrypoint.py'], { stdio: 'inherit', env: { ...process.env, ...(emulated ? { DOCKER_DEFAULT_PLATFORM: 'linux/amd64', NEANDER_TEMPLATE_EMULATED: '1' } : {}) } });
     execFileSync('python3', ['scripts/smoke.py', origin.origin], { stdio: 'inherit' });
+    if (process.env.NEANDER_TEMPLATE_BROWSER_TESTS === '1') {
+      execFileSync('node', ['--import', 'tsx', 'scripts/check-record-editor-ui.ts'], {
+        stdio: 'inherit', timeout: 180_000,
+        env: { ...process.env, NEANDER_TEMPLATE_UI_ORIGIN: origin.origin },
+      });
+    }
     await request('/api/crm', undefined, undefined, 'GET', 401);
     // Existing/ordinary workspaces are unaffected; disabling initialization survives retries.
     await client.query("UPDATE crm_template_settings SET enabled=false WHERE id='attio-starter-v1'");
