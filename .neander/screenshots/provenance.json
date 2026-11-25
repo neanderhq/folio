@@ -1,0 +1,135 @@
+{
+  "kind": "original_fictional_clone_gallery",
+  "product": "Folio",
+  "method": "Playwright Chromium; scripts/check-selected-features-ui.ts with readable fictional display-name substitutions; desktop1440x960 and phone375x812; settled viewport captures",
+  "assets": [
+    {
+      "path": ".neander/thumbnail.png",
+      "source_capture": "features-desktop-typed-overview.png",
+      "source_commit": "224676555db26edba56fa590f1bdadab47da26f8",
+      "captured_at": "2026-11-25",
+      "publisher": "Folio browser verification",
+      "content": "Original fictional Folio workspace; no vendor/reference material",
+      "viewport": [
+        1440,
+        960
+      ],
+      "sha256": "0983a76227e28cda14658bd54cb27308d722b6c6437b4f0730864671d6e574d5",
+      "bytes": 119479,
+      "transformations": "None; original viewport PNG copied byte-for-byte",
+      "limits": "Private email uses a visibly labelled controlled fictional OAuth/Gmail HTTP provider; no live Gmail or deployment claim."
+    },
+    {
+      "path": ".neander/screenshots/followups.png",
+      "source_capture": "features-desktop-followup-history.png",
+      "source_commit": "224676555db26edba56fa590f1bdadab47da26f8",
+      "captured_at": "2026-11-25",
+      "publisher": "Folio browser verification",
+      "content": "Original fictional Folio workspace; no vendor/reference material",
+      "viewport": [
+        1440,
+        960
+      ],
+      "sha256": "7587b28ca729d4a956101e95e432082244cbc75468f71d874f7e6e1a29b01e0d",
+      "bytes": 115797,
+      "transformations": "None; original viewport PNG copied byte-for-byte",
+      "limits": "Private email uses a visibly labelled controlled fictional OAuth/Gmail HTTP provider; no live Gmail or deployment claim."
+    },
+    {
+      "path": ".neander/screenshots/business-views.png",
+      "source_capture": "features-desktop-typed-view.png",
+      "source_commit": "224676555db26edba56fa590f1bdadab47da26f8",
+      "captured_at": "2026-11-25",
+      "publisher": "Folio browser verification",
+      "content": "Original fictional Folio workspace; no vendor/reference material",
+      "viewport": [
+        1440,
+        960
+      ],
+      "sha256": "21ea740c952bcc244f94eab040be40460b5afdb5c02a72b6f81755529ebd5283",
+      "bytes": 110044,
+      "transformations": "None; original viewport PNG copied byte-for-byte",
+      "limits": "Private email uses a visibly labelled controlled fictional OAuth/Gmail HTTP provider; no live Gmail or deployment claim."
+    },
+    {
+      "path": ".neander/screenshots/private-email.png",
+      "source_capture": "features-desktop-private-mail.png",
+      "source_commit": "224676555db26edba56fa590f1bdadab47da26f8",
+      "captured_at": "2026-11-25",
+      "publisher": "Folio browser verification",
+      "content": "Original fictional Folio workspace; no vendor/reference material",
+      "viewport": [
+        1440,
+        960
+      ],
+      "sha256": "beb1ca5815d0fb3189197387e858fd0bf47c9aae1ed91a777e839adc1291f116",
+      "bytes": 128570,
+      "transformations": "None; original viewport PNG copied byte-for-byte",
+      "limits": "Private email uses a visibly labelled controlled fictional OAuth/Gmail HTTP provider; no live Gmail or deployment claim."
+    },
+    {
+      "path": ".neander/screenshots/private-email-record.png",
+      "source_capture": "features-desktop-record-mail.png",
+      "source_commit": "224676555db26edba56fa590f1bdadab47da26f8",
+      "captured_at": "2026-11-25",
+      "publisher": "Folio browser verification",
+      "content": "Original fictional Folio workspace; no vendor/reference material",
+      "viewport": [
+        1440,
+        960
+      ],
+      "sha256": "265df35d8899f354222bab12cbd4e67c9f1ac8d33c28e662f0b00e3ae042e7d3",
+      "bytes": 152502,
+      "transformations": "None; original viewport PNG copied byte-for-byte",
+      "limits": "Private email uses a visibly labelled controlled fictional OAuth/Gmail HTTP provider; no live Gmail or deployment claim."
+    },
+    {
+      "path": ".neander/screenshots/mobile-followups.png",
+      "source_capture": "features-phone-followups-overview.png",
+      "source_commit": "224676555db26edba56fa590f1bdadab47da26f8",
+      "captured_at": "2026-11-25",
+      "publisher": "Folio browser verification",
+      "content": "Original fictional Folio workspace; no vendor/reference material",
+      "viewport": [
+        375,
+        812
+      ],
+      "sha256": "bc53b848d5cfbbb8e1bab4dfeb87688d04f939184225dde2166d021e2750a425",
+      "bytes": 53123,
+      "transformations": "None; original viewport PNG copied byte-for-byte",
+      "limits": "Private email uses a visibly labelled controlled fictional OAuth/Gmail HTTP provider; no live Gmail or deployment claim."
+    },
+    {
+      "path": ".neander/screenshots/mobile-business-views.png",
+      "source_capture": "features-phone-typed-conditions.png",
+      "source_commit": "224676555db26edba56fa590f1bdadab47da26f8",
+      "captured_at": "2026-11-25",
+      "publisher": "Folio browser verification",
+      "content": "Original fictional Folio workspace; no vendor/reference material",
+      "viewport": [
+        375,
+        812
+      ],
+      "sha256": "25b9b20fa0d7ba4779dd7dd7dcc6f95fb2a806d23a037db59a59ddb04a776252",
+      "bytes": 41132,
+      "transformations": "None; original viewport PNG copied byte-for-byte",
+      "limits": "Private email uses a visibly labelled controlled fictional OAuth/Gmail HTTP provider; no live Gmail or deployment claim."
+    },
+    {
+      "path": ".neander/screenshots/mobile-email.png",
+      "source_capture": "features-phone-mail-complete.png",
+      "source_commit": "224676555db26edba56fa590f1bdadab47da26f8",
+      "captured_at": "2026-11-25",
+      "publisher": "Folio browser verification",
+      "content": "Original fictional Folio workspace; no vendor/reference material",
+      "viewport": [
+        375,
+        812
+      ],
+      "sha256": "069678d4ddfdafb32ac3fd30bcbbc2bcd0e4b991afbbeb005884e8dd252e28ac",
+      "bytes": 58565,
+      "transformations": "None; original viewport PNG copied byte-for-byte",
+      "limits": "Private email uses a visibly labelled controlled fictional OAuth/Gmail HTTP provider; no live Gmail or deployment claim."
+    }
+  ]
+}
