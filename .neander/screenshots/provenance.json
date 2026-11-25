@@ -1,7 +1,7 @@
 {
   "kind": "original_fictional_clone_gallery",
   "product": "Folio",
-  "method": "Playwright Chromium; scripts/check-selected-features-ui.ts with readable fictional display-name substitutions; desktop1440x960 and phone375x812; settled viewport captures",
+  "method": "Playwright Chromium; scripts/check-selected-features-ui.ts with readable fictional display-name substitutions; desktop1440x960 and phone375x812; settled viewport captures; private-email.png uses the standard fictional qualification fixture, reviewed after replacing a compositor-corrupted gallery frame.",
   "assets": [
     {
       "path": ".neander/thumbnail.png",
@@ -53,7 +53,7 @@
     },
     {
       "path": ".neander/screenshots/private-email.png",
-      "source_capture": "features-desktop-private-mail.png",
+      "source_capture": "qualification/features-desktop-private-mail.png",
       "source_commit": "224676555db26edba56fa590f1bdadab47da26f8",
       "captured_at": "2026-11-25",
       "publisher": "Folio browser verification",
@@ -62,8 +62,8 @@
         1440,
         960
       ],
-      "sha256": "beb1ca5815d0fb3189197387e858fd0bf47c9aae1ed91a777e839adc1291f116",
-      "bytes": 128570,
+      "sha256": "e5c191f8931ff1066d45e7d16d1dae8efeaf6baf27bc794878d8d4802600b4fe",
+      "bytes": 133535,
       "transformations": "None; original viewport PNG copied byte-for-byte",
       "limits": "Private email uses a visibly labelled controlled fictional OAuth/Gmail HTTP provider; no live Gmail or deployment claim."
     },
