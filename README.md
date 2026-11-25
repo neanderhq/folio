@@ -13,7 +13,7 @@ A workspace CRM for companies, contacts, deals and the work around them.
 - Manage companies, people and a deal pipeline with stage history and currency-aware values.
 - Keep notes, assign tasks and view activity on records.
 - Let Admin-managed stage-change rules create assigned follow-up tasks atomically, with explicit timezone deadlines and execution history.
-- Organize records into private/shared lists and saved table or board views.
+- Organize records into private/shared lists and saved table or board views. Deal lists support typed AND filters, business/custom columns and stable sorting, with currency and archived-field safeguards.
 - Add custom fields, import/export CSV and review reports.
 - Control workspace access with Admin, Member and Viewer roles.
 

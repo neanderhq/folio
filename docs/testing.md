@@ -56,3 +56,5 @@ do not replace real app checks with boilerplate-only assertions.
 ## Follow-up rules
 
 `DATABASE_URL=<disposable PostgreSQL URL> pnpm exec tsx scripts/check-followups.ts` exercises persisted rules/tasks/history, role and tenant boundaries, replay/re-entry, notices, timezone dates, conflicts, downgraded assignees, a real PostgreSQL task-insert failure with atomic rollback, correction/retry and disabling. The production verifier invokes it with sample initialization disabled. It installs/removes a uniquely named fault trigger only in the explicitly disposable database.
+
+`DATABASE_URL=<disposable PostgreSQL URL> pnpm exec tsx scripts/check-business-views.ts` verifies typed AND filters, persisted columns/order/membership, zero/false/null, currency/foreign-field/type errors, stale saves, private list grants, archived-field unavailability and explicit correction. Production verification runs this suite with fictional workspaces.

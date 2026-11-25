@@ -80,4 +80,4 @@ async function main() {
   await db.end();
  }
 }
-main().catch(e=>{console.error(e);process.exitCode=1});
+main().then(()=>process.exit(0),e=>{console.error(e);process.exit(1)});

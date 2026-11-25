@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, eq, isNull, sql, inArray } from 'drizzle-orm';
 import { AccessError, sameOrigin, workspaceAccess } from '../../../server/auth';
 import { getDb } from '../../../server/db';
-import { companies, crmListEntries, crmListGrants, crmLists, crmListViews, deals, memberships, users } from '../../../server/schema';
+import { companies, crmListEntries, crmListGrants, crmLists, crmListViews, deals, memberships, users, customFields, customValues } from '../../../server/schema';
+import { businessFields, evaluateView, normalizeViewConfig } from '../../../shared/list-business-views';
 import { DEFAULT_VIEW, LIST_COLUMNS, LIST_STAGES, type ListViewConfig } from '../../../shared/lists';
 
 export const dynamic = 'force-dynamic';
@@ -22,14 +23,6 @@ async function bodyOf(request: Request) {
   if (raw.length > 8192) throw new AccessError('Form is too large.', 413);
   try { const parsed: unknown = JSON.parse(raw); if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed as Record<string, unknown>; } catch {}
   throw new AccessError('Provide a valid JSON form.', 400);
-}
-function viewConfig(value: unknown): ListViewConfig {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new AccessError('Choose valid view settings.', 400);
-  const v = value as Record<string, unknown>;
-  if (v.filterStage !== '' && !LIST_STAGES.includes(v.filterStage as typeof LIST_STAGES[number])) throw new AccessError('Choose a valid stage filter.', 400);
-  if (v.sort !== 'name' && v.sort !== 'stage' && v.sort !== 'newest') throw new AccessError('Choose a valid sort.', 400);
-  if (!Array.isArray(v.columns) || !v.columns.length || v.columns.length > LIST_COLUMNS.length || !v.columns.every(c => LIST_COLUMNS.includes(c as typeof LIST_COLUMNS[number])) || new Set(v.columns).size !== v.columns.length || !v.columns.includes('name')) throw new AccessError('Choose valid columns including Name.', 400);
-  return { filterStage: v.filterStage as string, sort: v.sort, columns: v.columns as string[] };
 }
 async function allowedList(request: Request, listId: unknown, write = false) {
   const access = await workspaceAccess(request);
@@ -73,7 +66,12 @@ export async function GET(request: Request) { try {
     ? await db.select().from(companies).where(and(eq(companies.workspaceId, access.workspaceId), isNull(companies.deletedAt)))
     : await db.select().from(deals).where(and(eq(deals.workspaceId, access.workspaceId), isNull(deals.deletedAt)));
   const records = new Map(recordRows.map(r => [r.id, r]));
-  return NextResponse.json({ lists, list, entries: entries.filter(e => records.has(e.recordId)).map(e => ({ ...e, record: records.get(e.recordId) })), views, grants: listGrants, canWrite: access.role !== 'Viewer' && (creator || list.visibility === 'shared' || grant?.access === 'Editor'), canGrant: creator });
+  const definitions = list.objectType === 'deal' ? await db.select().from(customFields).where(and(eq(customFields.workspaceId, access.workspaceId), eq(customFields.objectType, 'deal'))) : [];
+  const ids = definitions.map(f => f.id), recordIds = entries.filter(e => records.has(e.recordId)).map(e => e.recordId);
+  const values = ids.length && recordIds.length ? await db.select().from(customValues).where(and(eq(customValues.workspaceId, access.workspaceId), inArray(customValues.fieldId, ids), inArray(customValues.recordId, recordIds))) : [];
+  const enriched = entries.filter(e => records.has(e.recordId)).map(e => ({ ...e, record: { ...records.get(e.recordId)!, customValues: Object.fromEntries(values.filter(v => v.recordId === e.recordId).map(v => [v.fieldId, v.value])) } }));
+  const fields = businessFields(definitions), viewResults = Object.fromEntries(views.map(v => { const evaluated = evaluateView(enriched, v.config, fields, list.objectType); return [v.id, { entryIds: evaluated.rows.map(e => e.id), issues: evaluated.issues }]; }));
+  return NextResponse.json({ lists, list, entries: enriched, views, fields, viewResults, grants: listGrants, canWrite: access.role !== 'Viewer' && (creator || list.visibility === 'shared' || grant?.access === 'Editor'), canGrant: creator });
 } catch (e) { return fail(e); } }
 export async function POST(request: Request) { try {
   sameOrigin(request);
@@ -106,9 +104,16 @@ export async function POST(request: Request) { try {
   }
   if (b.action === 'saveView') {
     if (!uuid(b.viewId)) throw new AccessError('View not found.', 404);
-    const config = viewConfig(b.config);
-    const [view] = await db.update(crmListViews).set({ config }).where(and(eq(crmListViews.id, b.viewId as string), eq(crmListViews.listId, context.list.id))).returning();
-    if (!view) throw new AccessError('View not found.', 404);
+    const view = await db.transaction(async tx => {
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${access.workspaceId}), 73921)`);
+      const [current] = await tx.select().from(crmListViews).where(and(eq(crmListViews.id, b.viewId as string), eq(crmListViews.listId, context.list.id))).for('update').limit(1);
+      if (!current) throw new AccessError('View not found.', 404);
+      if (b.version !== undefined && b.version !== current.version) throw new AccessError('This shared view changed. Your draft is retained; reload the saved view before retrying.', 409);
+      const definitions = context.list.objectType === 'deal' ? await tx.select().from(customFields).where(and(eq(customFields.workspaceId, access.workspaceId), eq(customFields.objectType, 'deal'))) : [];
+      let config: ListViewConfig; try { config = normalizeViewConfig(b.config, context.list.objectType, businessFields(definitions)); } catch(e) { throw new AccessError(e instanceof Error ? e.message : 'Invalid view.', 400); }
+      if(config.version === 2 && b.version === undefined) throw new AccessError('Reload the saved view before saving business filters.', 409);
+      return (await tx.update(crmListViews).set({ config, version: current.version + 1 }).where(eq(crmListViews.id, current.id)).returning())[0];
+    });
     return NextResponse.json({ view });
   }
   if (b.action === 'grant') {

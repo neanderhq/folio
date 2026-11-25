@@ -1,3 +1,4 @@
+import type { ListViewConfig } from '../shared/lists';
 import { pgTable, serial, varchar, text, integer, timestamp, date, boolean, index, uuid, primaryKey, jsonb, uniqueIndex } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('crm_users', { id: uuid('id').defaultRandom().primaryKey(), email: varchar('email', { length: 254 }).notNull().unique(), passwordHash: text('password_hash').notNull(), createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull() });
@@ -134,7 +135,8 @@ export const crmListViews = pgTable('crm_list_views', {
   listId: uuid('list_id').notNull().references(() => crmLists.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 80 }).notNull(),
   kind: varchar('kind', { length: 10 }).notNull(),
-  config: jsonb('config').$type<{ filterStage: string; sort: string; columns: string[] }>().notNull(),
+  config: jsonb('config').$type<ListViewConfig>().notNull(),
+  version: integer('version').notNull().default(1),
 }, t => [uniqueIndex('crm_list_view_name_unique').on(t.listId, t.name)]);
 
 // Installing a template enables fictional data only for newly created workspaces.
