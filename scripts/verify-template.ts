@@ -66,6 +66,7 @@ async function main() {
     // Existing/ordinary workspaces are unaffected; disabling initialization survives retries.
     await client.query("UPDATE crm_template_settings SET enabled=false WHERE id='attio-starter-v1'");
     execFileSync('node', ['--import', 'tsx', 'scripts/check-crm-api.ts'], { stdio: 'inherit', timeout: 120_000 });
+    execFileSync('node', ['--import', 'tsx', 'scripts/check-followups.ts'], { stdio: 'inherit', timeout: 120_000 });
     const existing = await register('existing');
     execFileSync('node', ['scripts/initialize-template.mjs'], { stdio: 'inherit' });
     assert.equal((await client.query("SELECT enabled FROM crm_template_settings WHERE id='attio-starter-v1'")).rows[0].enabled, false);

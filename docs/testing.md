@@ -52,3 +52,7 @@ product acceptance, physical-device/mobile coverage, managed Neon/Cloud Run
 deployment, real email delivery or the desktop Neander Publish path. Keep the
 README's product-specific limitations. Add regression tests for behavior changes;
 do not replace real app checks with boilerplate-only assertions.
+
+## Follow-up rules
+
+`DATABASE_URL=<disposable PostgreSQL URL> pnpm exec tsx scripts/check-followups.ts` exercises persisted rules/tasks/history, role and tenant boundaries, replay/re-entry, notices, timezone dates, conflicts, downgraded assignees, a real PostgreSQL task-insert failure with atomic rollback, correction/retry and disabling. The production verifier invokes it with sample initialization disabled. It installs/removes a uniquely named fault trigger only in the explicitly disposable database.

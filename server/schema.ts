@@ -147,3 +147,20 @@ export const workspaceSeeds = pgTable('crm_workspace_seeds', {
   version: varchar('version', { length: 80 }).notNull(),
   appliedAt: timestamp('applied_at', { withTimezone: true }).defaultNow().notNull(),
 }, t => [primaryKey({ columns: [t.workspaceId, t.version] })]);
+
+export const followupRules = pgTable('crm_followup_rules', {
+  id: uuid('id').defaultRandom().primaryKey(), workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id),
+  name: varchar('name', { length: 80 }).notNull(), stage: varchar('stage', { length: 20 }).notNull(),
+  title: varchar('title', { length: 160 }).notNull(), assigneeId: uuid('assignee_id').notNull().references(() => users.id),
+  offsetDays: integer('offset_days').notNull(), timeZone: varchar('time_zone', { length: 80 }).notNull(),
+  enabled: boolean('enabled').notNull().default(true), version: integer('version').notNull().default(1),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, t => [index('crm_followup_rules_workspace_idx').on(t.workspaceId)]);
+export const followupExecutions = pgTable('crm_followup_executions', {
+  id: serial('id').primaryKey(), workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id),
+  ruleId: uuid('rule_id').notNull().references(() => followupRules.id), ruleVersion: integer('rule_version').notNull(),
+  stageEventId: integer('stage_event_id').notNull().references(() => dealStageEvents.id), dealId: integer('deal_id').notNull().references(() => deals.id),
+  taskId: integer('task_id').references(() => tasks.id, { onDelete: 'set null' }),
+  snapshot: jsonb('snapshot').$type<{ name: string; title: string; assigneeId: string; dueDate: string; timeZone: string }>().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, t => [uniqueIndex('crm_followup_event_unique').on(t.ruleId, t.stageEventId), index('crm_followup_history_idx').on(t.workspaceId, t.id)]);
