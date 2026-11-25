@@ -37,7 +37,7 @@
     "@types/react-dom": "19.2.7",
     "drizzle-kit": "0.31.10",
     "playwright": "1.61.1",
-    "tsx": "4.20.6",
+    "tsx": "4.23.15",
     "typescript": "7.0.2"
   },
   "license": "MIT"
